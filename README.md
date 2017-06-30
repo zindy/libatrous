@@ -28,8 +28,8 @@ Watch this space for additional code and tutorials...
 
 In a command window, type the following to create a libpython27.a usable by gcc:
 ```
-C:\TDM-GCC-64\x86_64-w64-mingw32\bin\gendef.exe" %PYTHONPATH%\python27.dll
-C:\TDM-GCC-64\bin\dlltool.exe" --as-flags=--64 -m i386:x86-64 -k -l libpython27.a -d python27.def
+"C:\TDM-GCC-64\x86_64-w64-mingw32\bin\gendef.exe" %PYTHONPATH%\python27.dll
+"C:\TDM-GCC-64\bin\dlltool.exe" --as-flags=--64 -m i386:x86-64 -k -l libpython27.a -d python27.def
 move libpython27.a C:\TDM-GCC-64\x86_64-w64-mingw32\lib
 move "%PYTHONPATH%\libs\python27.lib" "%PYTHONPATH%\libs\python27.lib____"
 ```
