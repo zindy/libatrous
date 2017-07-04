@@ -56,7 +56,7 @@ int main( int argc, const char **argv )
     float *kernel;
     int kernel_size;
     
-    choose_kernel(SPL5,&kernel,&kernel_size);
+    get_kernel(SPL5,&kernel,&kernel_size);
 
     clock_t c0, c1;
     double elapsed, seconds_multi=0, clock_multi=0;

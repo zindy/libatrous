@@ -15,7 +15,7 @@ if 1:
 #kernels
 if 1:
     print "Getting SPL5 kernel array..."
-    kernel = libatrous.choose_kernel(libatrous.SPL5)
+    kernel = libatrous.get_kernel(libatrous.SPL5)
     print kernel
 
 n_test = 10
