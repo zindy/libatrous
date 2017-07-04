@@ -102,9 +102,28 @@ void iterscale_safe(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel,
     *ZdimSmooth = Zdim;
     *YdimSmooth = Ydim;
 }
+
+PyObject* get_names() {
+    PyObject* TheList;
+    int i;
+    int numkern = get_numkern();
+
+    TheList = PyList_New(numkern);
+    if (!TheList) return NULL;
+
+    for (i = 0; i < numkern; i++) {
+        PyList_SET_ITEM(TheList, i, PyString_FromString((char *)get_kernel_name(i)));
+    }
+
+    return TheList; 
+}
 %}
 
+%ignore get_numkern;
 %ignore stack;
 %ignore scale;
 %ignore iterscale;
+
 %include "libatrous.h"
+
+

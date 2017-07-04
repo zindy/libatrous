@@ -20,11 +20,17 @@
 #define SPL5 1
 #define CUB1 2
 #define CUB2 3
-#define DB97 4
+#define CDF97 4
 #define GAU5 5
+#define LIN5 6
+#define NUMKERN 7
 
+int get_numkern(void);
 void set_grid(float val_x, float val_y, float val_z);
-void choose_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr);
+void get_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr);
+const char *get_kernel_name(int kernel_index);
 void stack(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, int n_scales, float **ArrayOut, int *SdimOut, int *ZdimOut, int *YdimOut, int *XdimOut);
 void scale(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut);
 void iterscale(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut, float **ArraySmooth, int *ZdimSmooth, int *YdimSmooth, int *XdimSmooth);
+
+

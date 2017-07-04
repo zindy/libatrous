@@ -25,25 +25,31 @@
 #include "matalloc.h"
 #include "libatrous.h"
 
-void set_grid(float val_x, float val_y, float val_z);
-void choose_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr);
 tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_size, int the_scale);
+
+const float k0[] = {0.25, 0.5, 0.25}; //lin3
+const float k1[] = {1./16, 1./4, 3./8, 1./4, 1./16}; //bspline 5
+const float k2[] = {-1./16, 0, 5./16, 0.5, 5./16, 0, -1./16}; //cubic alpha=-1
+const float k3[] = {-1./32, 0, 9./32, 0.5, 9./32, 0, -1./32}; //cubic alpha=-0.5
+const float k4[] = {0.0267, -0.0168, -0.0782, 0.2668, 0.6029, 0.2668, -0.0782, -0.0168, 0.0267}; //cdf97
+const float k5[] = {0.06136,0.24477,0.38774,0.24477,0.06136}; //gauss 5 as per http://dev.theomader.com/gaussian-kernel-calculator/
+const float k6[] = {0.125,0.25, 0.5, 0.25,0.125}; //lin 5
+
+const float *KERNEL[7] = {k0, k1, k2, k3, k4, k5, k6};
+const int KERNEL_SIZE[] = {sizeof(k0)/sizeof(float), sizeof(k1)/sizeof(float), sizeof(k2)/sizeof(float), sizeof(k3)/sizeof(float), sizeof(k4)/sizeof(float), sizeof(k5)/sizeof(float), sizeof(k6)/sizeof(float)};
+const char *KERNELSTRING[] = {"Linear 3x3", "B3 Spline 5x5", "Cubic alpha=-1", "Cubic alpha=-0.5", "CDF 9/7 (JPEG 2000)", "Gaussian 5x5", "Linear 5x5"};
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-float kernel_linear3[] = {0.25, 0.5, 0.25};
-float kernel_spline5[] = {1./16, 1./4, 3./8, 1./4, 1./16};
-float kernel_cub1[] = {-1./32, 0, 9./32, 0.5, 9./32, 0, -1./32};
-float kernel_cub2[] = {-1./32, 0, 9./32, 0.5, 9./32, 0, -1./32}; //cubic alpha=-0.5
-float kernel_db97[] = {0.0267, -0.0168, -0.0782, 0.2668, 0.6029, 0.2668, -0.0782, -0.0168, 0.0267};
-//float kernel_linear5[] = {0.125,0.25, 0.5, 0.25,0.125};
-//gauss5 as per http://dev.theomader.com/gaussian-kernel-calculator/
-float kernel_gauss5[] = {0.06136,0.24477,0.38774,0.24477,0.06136};
-
 float x_factor=1;
 float y_factor=1;
 float z_factor=1;
+
+int get_numkern(void) {
+    int numkern = sizeof(KERNELSTRING)/sizeof(char *);
+    return numkern;
+}
 
 void set_grid(float val_x, float val_y, float val_z)
 {
@@ -63,22 +69,30 @@ end:
     return;
 }
 
-
-void choose_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr)
+//return the kernel array
+void get_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr)
 {
-    switch(kernel_index)
-    {
-        case LIN3: *kernel_ptr = kernel_linear3; *kernel_size_ptr = 3; break;
-        case SPL5: *kernel_ptr = kernel_spline5; *kernel_size_ptr = 5; break;
-        case CUB1: *kernel_ptr = kernel_cub1; *kernel_size_ptr = 7; break;
-        case CUB2: *kernel_ptr = kernel_cub2; *kernel_size_ptr = 7; break;
-        case DB97: *kernel_ptr = kernel_db97; *kernel_size_ptr = 9; break;
-        case GAU5: *kernel_ptr = kernel_gauss5; *kernel_size_ptr = 5; break;
-        default: errno = EPERM; goto end;
-    }
+    int numkern = sizeof(KERNELSTRING)/sizeof(char *);
 
-end:
-    return;
+    if (kernel_index < 0 || kernel_index >= numkern)
+        errno = EPERM;
+    else {
+        *kernel_ptr = (float *)KERNEL[kernel_index];
+        *kernel_size_ptr = (int)KERNEL_SIZE[kernel_index];
+    }
+}
+
+//return the kernel name
+const char *get_kernel_name(int kernel_index) {
+    const char *ret = NULL;
+    int numkern = sizeof(KERNELSTRING)/sizeof(char *);
+
+    if (kernel_index < 0 || kernel_index >= numkern)
+        errno = EPERM;
+    else
+        ret = KERNELSTRING[kernel_index];
+
+    return ret;
 }
 
 //syntax uses tensor structures defined in matalloc.c.
@@ -403,8 +417,6 @@ void iterscale(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int 
     //for tensor allocation
     tensor *tenIn = NULL, *tenSmooth = NULL;
     float *datSmooth;
-
-    //printf("Zdim=%d, Ydim=%d, Xdim=%d\n",Zdim,Ydim,Xdim);
 
     //allocate output array
     if (the_scale < 0) {
