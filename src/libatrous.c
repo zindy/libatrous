@@ -450,7 +450,7 @@ void iterscale(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int 
         default(shared) private(i)
 
     for (i=0;i<Zdim*Ydim*Xdim;i++) {
-        decomp[i] -= datSmooth[i];
+        decomp[i] = ArrayIn[i] - datSmooth[i];
     }
 
 end:
