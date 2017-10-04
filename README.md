@@ -9,7 +9,8 @@ There are a few (hopefully useful) tricks I have implemented in the library:
 * Image border artifacts are greatly reduced by using mirrored edges.
 * Rectangular shaped voxels are taken into account by using re-gridding (interpolated nearest neighbour positions).
 
-Watch this space for additional code and tutorials...
+Watch this space for additional code and tutorials.
+For now, see http://nbviewer.jupyter.org/github/zindy/libatrous/blob/master/GetStarted.ipynb
 
 ## To build the Python library on 64 bit Windows with tdm-gcc, SWIG and Anaconda:
 ### Things to download
