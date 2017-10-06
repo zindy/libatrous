@@ -53,10 +53,14 @@ def git_version():
         out = _minimal_ext_cmd(['git', 'describe', '--tags', '--dirty'])
         version = out.strip().decode('ascii')
 
+        if "-" in version:
+            version,_ = version.split("-",1)
+            version+=".dev"
+
         #some kind of mechanism to tag a dev version...
-        if "dirty" in version:
-            version = version.replace("-dirty",".dev")
-        elif version == '':
+        #if "dirty" in version:
+        #    version = version.replace("dirty","dev")
+        if version == '':
             version = "Unknown"
     except OSError:
         version = "Unknown"
