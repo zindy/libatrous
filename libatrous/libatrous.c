@@ -78,6 +78,10 @@ void set_ncores(int val) {
    omp_set_num_threads(ncores);
 }
 
+int get_ncores(void) {
+   return ncores;
+}
+
 //return the kernel array
 void get_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr)
 {
