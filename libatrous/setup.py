@@ -19,6 +19,8 @@ from setuptools import setup, find_packages,Extension
 from setuptools.command.build_ext import build_ext as _build_ext
 import numpy, os, sys, subprocess
 
+from pkg_resources import parse_version
+
 if sys.version_info[:2] < (2, 7) or (3, 0) <= sys.version_info[:2] < (3, 4):
     raise RuntimeError("Python version 2.7 or >= 3.4 required.")
 
@@ -64,11 +66,11 @@ def git_version():
         #if "dirty" in version:
         #    version = version.replace("dirty","dev")
         if version == '':
-            version = "Unknown"
+            version = "0.0"
     except OSError:
-        version = "Unknown"
+        version = "0.0"
 
-    return version
+    return str(parse_version(version))
 
 def read(*parts, **kw):
   heredir = os.path.abspath(os.path.dirname(__file__))
@@ -112,7 +114,7 @@ class build_ext(_build_ext):
         _build_ext.run(self)
         print "==="
         print self.distribution.metadata.version
-        print self.distribution.metadata.release
+        #print self.distribution.metadata.release
         print "==="
         # 1. Rename the swig generated .py file to __init__.py
         #
