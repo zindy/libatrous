@@ -211,7 +211,6 @@ setup(
     platforms             = ['any'],
     include_package_data  = True,
     zip_safe              = True,
-    release               = False,
     #install_requires      = dependencies,
     #tests_require         = test_dependencies,
     #test_suite            = 'libatrous',
