@@ -54,8 +54,11 @@ def git_version():
         version = out.strip().decode('ascii')
 
         if "-" in version:
-            version,_ = version.split("-",1)
+            version,sig = version.split("-",1)
             version+=".dev"
+            if "-" in sig:
+                sig,_ = sig.split("-",1)
+                version+=sig
 
         #some kind of mechanism to tag a dev version...
         #if "dirty" in version:
@@ -109,6 +112,7 @@ class build_ext(_build_ext):
         _build_ext.run(self)
         print "==="
         print self.distribution.metadata.version
+        print self.distribution.metadata.release
         print "==="
         # 1. Rename the swig generated .py file to __init__.py
         #
@@ -207,6 +211,7 @@ setup(
     platforms             = ['any'],
     include_package_data  = True,
     zip_safe              = True,
+    release               = False,
     #install_requires      = dependencies,
     #tests_require         = test_dependencies,
     #test_suite            = 'libatrous',
