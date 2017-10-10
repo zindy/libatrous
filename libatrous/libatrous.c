@@ -46,6 +46,8 @@ float x_factor=1;
 float y_factor=1;
 float z_factor=1;
 
+int ncores = 0;
+
 int get_numkern(void) {
     int numkern = sizeof(KERNELSTRING)/sizeof(char *);
     return numkern;
@@ -67,6 +69,13 @@ void set_grid(float val_x, float val_y, float val_z)
 
 end:
     return;
+}
+
+// In situations where libatrous threads are run in parallel,
+// it may be advantageous to reduct the number of threads used by libatrous
+void set_ncores(int val) {
+   ncores = val;
+   omp_set_num_threads(ncores);
 }
 
 //return the kernel array
@@ -95,11 +104,13 @@ const char *get_kernel_name(int kernel_index) {
     return ret;
 }
 
-//syntax uses tensor structures defined in matalloc.c.
-//As we convert either 1-D, 2-D or 3-D data to tensor structures (with possibly nz=1 and ny=1), we need to be careful about how processing gets split using OpenMP.
-//We want to split processing on the outerloop but for 3D, we may have less Z-planes than we have cores available.
-//For 3D, it will be faster (even taking into account context switching) to split the inner loop using OpenMP.
-//Then we can optimise the processing of 1-D, 2-D or 3-D data in different blocks of code.
+// Syntax uses tensor structures defined in matalloc.c.
+// As we convert either 1-D, 2-D or 3-D data to tensor structures (with possibly nz=1 and ny=1),
+// we need to be careful about how processing gets split using OpenMP.
+//
+// We want to split processing on the outerloop but for 3D, we may have less Z-planes than we have cores available.
+// For 3D, it will be faster (even taking into account context switching) to split the inner loop using OpenMP.
+// Then we can optimise the processing of 1-D, 2-D or 3-D data in different blocks of code.
 tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_size, int the_scale)
 {
     int x,y,z,dk,index;
@@ -146,8 +157,9 @@ tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_
         tarTemp1 = (float ***)tenTemp1->te;
     }
 
-    //the original 3D dataset is processed in all three dimensions, starting with X
-    //If nz is 1, we don't actually need to process in the Z directiom so data processed in the Y direction needs to be saved directly in the output array instead of a second temporary array.
+    // The original 3D dataset is processed in all three dimensions, starting with X
+    // If nz is 1, we don't actually need to process in the Z directiom so data
+    // processed in the Y direction needs to be saved directly in the output array instead of a second temporary array.
     if (nz == 1) {
         tenTemp2 = tenOut;
         tarTemp2 = tarOut;
@@ -157,17 +169,18 @@ tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_
         tarTemp2 = (float ***)tenTemp2->te;
     }
 
-    //Create and fill the shift arrays. These are small, so creating them isn't much of a penalty even if we don't need them for all three dimensions...
+    // Create and fill the shift arrays. These are small, so creating them isn't much of
+    // a penalty even if we don't need them for all three dimensions...
     shift_array = (int *)malloc(kernel_size*sizeof(int));
 
     if (shift_array == NULL) {
         errno = ENOMEM; goto end;
     }
 
-    //index of centre position in the kernel
+    // Index of centre position in the kernel
     center = kernel_size / 2;
 
-    //this is now the distance between adjacent pixels.
+    // This is now the distance between adjacent pixels.
     the_scale = (int)pow(2, the_scale);
 
 
@@ -175,7 +188,7 @@ tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_
         shift_array[dk] = (int)roundf(the_scale*(dk-center)*x_factor);
 
     if (nz==1 && ny==1) {
-        //Filter in the X direction
+        // Filter in the X direction
         #pragma omp parallel for        \
             default(shared) private(x,dk,index,dot)
 
@@ -193,7 +206,7 @@ tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_
             tarOut[0][0][x] = dot;
         }
     } else {
-        //Filter in the X direction
+        // Filter in the X direction
         for (z=0;z<nz;z++) {
             #pragma omp parallel for        \
                 default(shared) private(y,x,dk,index,dot)
@@ -215,7 +228,7 @@ tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_
             }
         }
 
-        //Filter in the Y direction. When nz == 1, the output tensor is tarOut.
+        // Filter in the Y direction. When nz == 1, the output tensor is tarOut.
         for (dk=0; dk<kernel_size; dk++)
             shift_array[dk] = (int)roundf(the_scale*(dk-center)*y_factor);
 
@@ -240,7 +253,7 @@ tensor *convolve_3pass(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_
             }
         }
 
-        //Filter in the Z direction if we actually have a Z stack
+        // Filter in the Z direction if we actually have a Z stack
         if (nz > 1) {
             for (dk=0; dk<kernel_size; dk++)
                 shift_array[dk] = (int)roundf(the_scale*(dk-center)*z_factor);
@@ -299,10 +312,10 @@ void stack(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kern
 
     if (decomp == NULL) { errno = ENOMEM; goto end; }
 
-    //this is what we output
+    // This is what we output
     *ArrayOut = decomp;
 
-    //allocate some tensors
+    // Allocate some tensors
     tenIn = t_wrap(ArrayIn, Zdim, Ydim, Xdim, sizeof(float));
     tenTemp = t_wrap(decomp, Zdim, Ydim, Xdim, sizeof(float));
     tenSmooth = t_get(Zdim, Ydim, Xdim, sizeof(float));
@@ -330,7 +343,7 @@ void stack(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kern
         }
     }
 
-    //use the definition of Temp to copy the low pass at the begining of the output array.
+    // use the definition of Temp to copy the low pass at the begining of the output array.
     t_copy(tenSmooth,tenTemp);
 
 end:
