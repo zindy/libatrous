@@ -28,6 +28,7 @@
 int get_numkern(void);
 void set_grid(float val_x, float val_y, float val_z);
 void set_ncores(int val);
+void enable_conv(float val_x, float val_y, float val_z);
 int get_ncores(void);
 void get_kernel(int kernel_index, float **kernel_ptr, int *kernel_size_ptr);
 const char *get_kernel_name(int kernel_index);
