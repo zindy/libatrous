@@ -1,4 +1,4 @@
-# libatrous
+# (edge aware) libatrous
 My "A trous" wavelet library with Python 2 bindings.
 
 This is a library I use to band-pass filter our microscopy images. For example, speckled noise and background fluorescence can both be removed by defining an adequate band (more to come).
@@ -8,6 +8,7 @@ There are a few (hopefully useful) tricks I have implemented in the library:
 * The library uses separable kernels and OpenMP for speed improvements.
 * Image border artifacts are greatly reduced by using mirrored edges.
 * Rectangular shaped voxels are taken into account by using re-gridding (interpolated nearest neighbour positions).
+* Edge awareness code. Allows the filtering of an image while preserving its edges.
 
 Watch this space for additional code and tutorials.
 For now, see http://nbviewer.jupyter.org/github/zindy/libatrous/blob/master/GetStarted.ipynb
