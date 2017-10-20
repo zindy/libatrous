@@ -67,14 +67,17 @@
 %apply (float** ARGOUTVIEW_ARRAY1, int* DIM1) {(float **kernel_ptr, int *kernel_size_ptr)}
 %apply (float* IN_ARRAY3, int DIM1, int DIM2, int DIM3) {(float *ArrayIn, int Zdim, int Ydim, int Xdim)}
 %apply (float* IN_ARRAY1, int DIM1) {(float *kernel, int kernel_size)}
+%apply (float* IN_ARRAY1, int DIM1) {(float *dmap, int dmap_size)}
 %apply (float** ARGOUTVIEWM_ARRAY4, int* DIM1, int* DIM2, int* DIM3, int* DIM4) {(float **ArrayOut, int *SdimOut, int *ZdimOut, int *YdimOut, int *XdimOut)}
 %apply (float** ARGOUTVIEWM_ARRAY3, int* DIM1, int* DIM2, int* DIM3) {(float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut)}
 %apply (float** ARGOUTVIEWM_ARRAY3, int* DIM1, int* DIM2, int* DIM3) {(float **ArraySmooth, int *ZdimSmooth, int *YdimSmooth, int *XdimSmooth)}
+%apply (float** ARGOUTVIEWM_ARRAY1, int* DIM1) {(float **ArrayOut, int *XdimOut)}
 
 
 %rename (scale) scale_safe;
 %rename (stack) stack_safe;
 %rename (iterscale) iterscale_safe;
+%rename (iterscale_ea) iterscale_ea_safe;
 %inline %{
 
 void scale_safe(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut) {
@@ -103,6 +106,16 @@ void iterscale_safe(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel,
     *YdimSmooth = Ydim;
 }
 
+void iterscale_ea_safe(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, float *dmap, int dmap_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut, float **ArraySmooth, int *ZdimSmooth, int *YdimSmooth, int *XdimSmooth) {
+    int _Zdim = (Zdim == -1)?1:Zdim;
+    int _Ydim = (Ydim == -1)?1:Ydim;
+    iterscale_ea(ArrayIn,_Zdim, _Ydim, Xdim, kernel, kernel_size, dmap, dmap_size, the_scale, ArrayOut, ZdimOut, YdimOut, XdimOut, ArraySmooth, ZdimSmooth, YdimSmooth, XdimSmooth);
+    *ZdimOut = Zdim;
+    *YdimOut = Ydim;
+    *ZdimSmooth = Zdim;
+    *YdimSmooth = Ydim;
+}
+
 PyObject* get_names() {
     PyObject* TheList;
     int i;
@@ -123,6 +136,7 @@ PyObject* get_names() {
 %ignore stack;
 %ignore scale;
 %ignore iterscale;
+%ignore iterscale_ea;
 
 %include "libatrous.h"
 

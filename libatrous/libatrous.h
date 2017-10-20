@@ -36,4 +36,6 @@ void stack(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kern
 void scale(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut);
 void iterscale(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut, float **ArraySmooth, int *ZdimSmooth, int *YdimSmooth, int *XdimSmooth);
 
+void get_dmap(int scale, int n_scales, float sigmar, float alpha, int maxval, float **ArrayOut, int *XdimOut);
+void iterscale_ea(float *ArrayIn, int Zdim, int Ydim, int Xdim, float *kernel, int kernel_size, float *dmap, int dmap_size, int the_scale, float **ArrayOut, int *ZdimOut, int *YdimOut, int *XdimOut, float **ArraySmooth, int *ZdimSmooth, int *YdimSmooth, int *XdimSmooth);
 
