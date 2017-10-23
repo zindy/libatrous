@@ -571,7 +571,7 @@ end:
 //   Worked out a separable kernel / edge-stopping function (EZ)
 tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kernel_size, float *dmap, int dmap_size, int the_scale)
 {
-    int x,y,z,dk,index;
+    int x,y,z,dk,index,dist;
     int nx,ny,nz;
     
     // the shift array depends both on the scale and the x,y,z factors (correction factor for rectangular voxels)
@@ -647,7 +647,7 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
     if (nz==1 && ny==1) {
         // Filter in the X direction
         #pragma omp parallel for        \
-            default(shared) private(x,dk,index,dot,g,wa)
+            default(shared) private(x,dk,index,dist,dot,g,wa)
 
         for (x=0; x<nx; x++) {
             dot = 0;
@@ -659,7 +659,9 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
                 else if (index >=nx) index = ((2*nx-1)-index) % nx;
                 if (index < 0 ) index = 0;
 
-                g = dmap[(int)roundf(abs(tarIn[0][0][index]-tarIn[0][0][x]))] * kernel[dk];
+                dist = (int)roundf(abs(tarIn[0][0][index]-tarIn[0][0][x]));
+                if (dist < 0) dist = 0; else if (dist >= dmap_size) dist = dmap_size-1;
+                g = dmap[dist] * kernel[dk];
                 dot += tarIn[0][0][index] * g;
                 wa += g;
             }
@@ -672,7 +674,7 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
         } else {
             for (z=0;z<nz;z++) {
                 #pragma omp parallel for        \
-                    default(shared) private(y,x,dk,index,dot,g,wa)
+                    default(shared) private(y,x,dk,index,dist,dot,g,wa)
 
                 for (y=0; y<ny; y++) {
                     for (x=0; x<nx; x++) {
@@ -685,7 +687,9 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
                             else if (index >= nx) index = ((2*nx-1)-index) % nx;
                             if (index < 0 ) index = 0;
 
-                            g = dmap[(int)roundf(abs(tarIn[z][y][index]-tarIn[z][y][x]))] * kernel[dk];
+                            dist = (int)roundf(abs(tarIn[z][y][index]-tarIn[z][y][x]));
+                            if (dist < 0) dist = 0; else if (dist >= dmap_size) dist = dmap_size-1;
+                            g = dmap[dist] * kernel[dk];
                             dot += tarIn[z][y][index] * g;
                             wa += g;
                         }
@@ -704,7 +708,7 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
 
             for (z=0; z<nz; z++) {
                 #pragma omp parallel for        \
-                    default(shared) private(y,x,dk,index,dot,g,wa)
+                    default(shared) private(y,x,dk,index,dist,dot,g,wa)
 
                 for (y=0; y<ny; y++) {
                     for (x=0; x<nx; x++) {
@@ -716,7 +720,9 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
                             if(index < 0) index = (-index) % ny;
                             else if (index >=ny) index = ((2*ny-1)-index) % ny;
                             if (index < 0 ) index = 0;
-                            g = dmap[(int)roundf(abs(tarIn[z][index][x]-tarIn[z][y][x]))] * kernel[dk];
+                            dist = (int)roundf(abs(tarIn[z][index][x]-tarIn[z][y][x]));
+                            if (dist < 0) dist = 0; else if (dist >= dmap_size) dist = dmap_size-1;
+                            g = dmap[dist] * kernel[dk];
                             dot += tarTemp1[z][index][x] * g;
                             wa += g;
                         }
@@ -744,7 +750,7 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
 
                 for (z=0; z<nz; z++) {
                     #pragma omp parallel for        \
-                        default(shared) private(y,x,dk,index,dot,g,wa)
+                        default(shared) private(y,x,dk,index,dist,dot,g,wa)
 
                     for (y=0; y<ny; y++) {
                         for (x=0; x<nx; x++) {
@@ -758,7 +764,9 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
                                 else if (index >=nz) index = ((2*nz-1)-index) % nz;
                                 if (index < 0 ) index = 0;
 
-                                g =  dmap[(int)roundf(abs(tarIn[index][y][x]-tarIn[z][y][x]))] * kernel[dk] ;
+                                dist = (int)roundf(abs(tarIn[index][y][x]-tarIn[z][y][x]));
+                                if (dist < 0) dist = 0; else if (dist >= dmap_size) dist = dmap_size-1;
+                                g = dmap[dist] * kernel[dk];
                                 dot += tarTemp2[index][y][x] * g;
                                 wa += g;
                             }
