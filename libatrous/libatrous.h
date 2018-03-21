@@ -18,12 +18,13 @@
 
 #define LIN3 0
 #define SPL5 1
-#define CUB1 2
-#define CUB2 3
-#define CDF97 4
-#define GAU5 5
-#define LIN5 6
-#define NUMKERN 7
+#define LIN5 2
+#define LG53 3
+#define GAU5 4
+#define CUB1 5
+#define CUB2 6
+#define CDF97 7
+#define NUMKERN 8
 
 int get_numkern(void);
 void set_grid(float val_x, float val_y, float val_z);

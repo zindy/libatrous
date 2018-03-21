@@ -139,5 +139,6 @@ PyObject* get_names() {
 %ignore iterscale_ea;
 
 %include "libatrous.h"
+%pythoncode "mixin.py"
 
 

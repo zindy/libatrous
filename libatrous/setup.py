@@ -112,10 +112,10 @@ class build_ext(_build_ext):
     def run(self):
         # Start classic Extension build
         _build_ext.run(self)
-        print "==="
-        print self.distribution.metadata.version
-        #print self.distribution.metadata.release
-        print "==="
+        print("===")
+        print(self.distribution.metadata.version)
+        #print(self.distribution.metadata.release)
+        print("===")
         # 1. Rename the swig generated .py file to __init__.py
         #
         # 2. if not inplace, additionally move all the files to
@@ -136,6 +136,7 @@ class build_ext(_build_ext):
                 if self.inplace:
                     os.remove(fn)
                     build_dir = source_dir
+                    fn = name+'.py'
                 else:
                     build_dir = os.path.join(self.build_lib,name)
                     if not os.path.exists(build_dir):
@@ -145,8 +146,9 @@ class build_ext(_build_ext):
                     fn_new = os.path.join(build_dir,
                         os.path.split(fn_old)[1])
                     os.rename(fn_old,fn_new)
+                    fn = '__init__.py'
 
-                fn = os.path.join(build_dir,'__init__.py')
+                fn = os.path.join(build_dir,fn)
                 with open(fn,'w') as f:
                     f.writelines(lines)
 

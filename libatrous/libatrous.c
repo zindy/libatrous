@@ -31,16 +31,17 @@ tensor *convolve_3pass_ea(tensor *tenIn, tensor *tenOut, float *kernel, int kern
 
 const float k0[] = {0.25, 0.5, 0.25}; //lin3
 const float k1[] = {1./16, 1./4, 3./8, 1./4, 1./16}; //bspline 5
-const float k2[] = {-1./16, 0, 5./16, 0.5, 5./16, 0, -1./16}; //cubic alpha=-1
-const float k3[] = {-1./32, 0, 9./32, 0.5, 9./32, 0, -1./32}; //cubic alpha=-0.5
-const float k4[] = {0.026748757411, -0.016864118443, -0.078223266529, 0.266864118443, \
+const float k2[] = {0.1,0.2, 0.4, 0.2,0.1}; //lin 5
+const float k3[] = {-1./8, 2./8., 6./8., 2./8., -1./8.}; //Le Gall 5/3
+const float k4[] = {0.06136,0.24477,0.38774,0.24477,0.06136}; //gauss 5 as per http://dev.theomader.com/gaussian-kernel-calculator/
+const float k5[] = {-1./16, 0, 5./16, 0.5, 5./16, 0, -1./16}; //cubic alpha=-1
+const float k6[] = {-1./32, 0, 9./32, 0.5, 9./32, 0, -1./32}; //cubic alpha=-0.5
+const float k7[] = {0.026748757411, -0.016864118443, -0.078223266529, 0.266864118443, \
     0.602949018236, 0.266864118443, -0.078223266529, -0.016864118443, 0.026748757411}; //cdf97 
-const float k5[] = {0.06136,0.24477,0.38774,0.24477,0.06136}; //gauss 5 as per http://dev.theomader.com/gaussian-kernel-calculator/
-const float k6[] = {0.1,0.2, 0.4, 0.2,0.1}; //lin 5
 
-const float *KERNEL[7] = {k0, k1, k2, k3, k4, k5, k6};
+const float *KERNEL[NUMKERN] = {k0, k1, k2, k3, k4, k5, k6, k7};
 const int KERNEL_SIZE[] = {sizeof(k0)/sizeof(float), sizeof(k1)/sizeof(float), sizeof(k2)/sizeof(float), sizeof(k3)/sizeof(float), sizeof(k4)/sizeof(float), sizeof(k5)/sizeof(float), sizeof(k6)/sizeof(float)};
-const char *KERNELSTRING[] = {"Linear 3x3", "B3 Spline 5x5", "Cubic alpha=-1", "Cubic alpha=-0.5", "CDF 9/7 (JPEG 2000)", "Gaussian 5x5", "Linear 5x5"};
+const char *KERNELSTRING[] = {"Linear 3x3", "B3 Spline 5x5", "Linear 5x5", "Le Gall 5/3", "Gaussian 5x5", "Cubic alpha=-1", "Cubic alpha=-0.5", "CDF 9/7 (JPEG 2000)"};
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
