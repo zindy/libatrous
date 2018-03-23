@@ -40,7 +40,9 @@ const float k7[] = {0.026748757411, -0.016864118443, -0.078223266529, 0.26686411
     0.602949018236, 0.266864118443, -0.078223266529, -0.016864118443, 0.026748757411}; //cdf97 
 
 const float *KERNEL[NUMKERN] = {k0, k1, k2, k3, k4, k5, k6, k7};
-const int KERNEL_SIZE[] = {sizeof(k0)/sizeof(float), sizeof(k1)/sizeof(float), sizeof(k2)/sizeof(float), sizeof(k3)/sizeof(float), sizeof(k4)/sizeof(float), sizeof(k5)/sizeof(float), sizeof(k6)/sizeof(float)};
+
+const int KERNEL_SIZE[] = {sizeof(k0)/sizeof(float), sizeof(k1)/sizeof(float), sizeof(k2)/sizeof(float), sizeof(k3)/sizeof(float), sizeof(k4)/sizeof(float), sizeof(k5)/sizeof(float), sizeof(k6)/sizeof(float), sizeof(k7)/sizeof(float)};
+
 const char *KERNELSTRING[] = {"Linear 3x3", "B3 Spline 5x5", "Linear 5x5", "Le Gall 5/3", "Gaussian 5x5", "Cubic alpha=-1", "Cubic alpha=-0.5", "CDF 9/7 (JPEG 2000)"};
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
