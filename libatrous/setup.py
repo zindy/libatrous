@@ -29,6 +29,9 @@ if sys.version_info[0] >= 3:
 else:
     import __builtin__ as builtins
 
+# Change the local path so setup.py can be called from a different directory.
+os.chdir(os.path.split(sys.argv[0])[0])
+
 # Obtain the numpy include directory.  This logic works across numpy versions.
 try:
     numpy_include = numpy.get_include()
